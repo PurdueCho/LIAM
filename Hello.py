@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Hello",
+    page_title="Agent LIAM",
     page_icon="👋",
 )
 
