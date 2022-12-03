@@ -4,9 +4,10 @@ from io import StringIO
 
 DEBUG = True
 
-def my_func(query):
+def my_func(path, query):
     print("hello there")
-    print(query)
+    print("Video path: ", path)
+    print("User query: ", query)
 
     ################
     # do something #
@@ -41,10 +42,10 @@ if uploaded_file is not None:
     st.video(uploaded_file)
 
     # Search Input
-    search = st.text_input('찾고 싶은 장면을 검색 하세요.', 'Ex) 웃고있는 이광수...')
+    query = st.text_input('찾고 싶은 장면을 검색 하세요.', 'Ex) 웃고있는 이광수...')
 
     if DEBUG:
-        st.write('검색 Query: ', search)
+        st.write('검색 Query: ', query)
 
     run_btn = st.button('검색')
 
@@ -54,5 +55,5 @@ if uploaded_file is not None:
 
     if run_btn or st.session_state.run_btn_state:
         st.session_state.run_btn_state = True
-        my_func(search) # Your function
+        my_func(uploaded_file, query) # Your function
 

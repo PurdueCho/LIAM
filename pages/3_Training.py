@@ -4,9 +4,10 @@ from io import StringIO
 
 DEBUG = True
 
-def my_func():
+def my_func(files):
     print("hello there")
-
+    print(files)
+    
     ################
     # do something #
     ################
@@ -34,4 +35,4 @@ if uploaded_files is not None:
         if DEBUG:
             st.write(uploaded_files)
             
-        my_func() # Your function
+        my_func(uploaded_files) # Your function

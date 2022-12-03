@@ -2,9 +2,10 @@ import streamlit as st
 from PIL import Image
 DEBUG = True
 
-def my_func(query):
+def my_func(url, query):
     print("hello there")
-    print(query)
+    print("Youtube URL: ", url)
+    print("User query: ", query)
 
     ################
     # do something #
@@ -23,10 +24,10 @@ def get_Youtube(url):
         st.video(url)
 
         # Search Input
-        search = st.text_input('찾고 싶은 장면을 검색 하세요.', 'Ex) 웃고있는 이광수...')
+        query = st.text_input('찾고 싶은 장면을 검색 하세요.', 'Ex) 웃고있는 이광수...')
 
         if DEBUG:
-            st.write('검색 Query: ', search)
+            st.write('검색 Query: ', query)
 
         run_btn = st.button('검색')
 
@@ -36,7 +37,7 @@ def get_Youtube(url):
 
         if run_btn or st.session_state.run_btn_state:
             st.session_state.run_btn_state = True
-            my_func(url) # Your function
+            my_func(url, query) # Your function
 
 st.title("원하시는 유튜브 영상속 장면을 검색하세요.")
 
