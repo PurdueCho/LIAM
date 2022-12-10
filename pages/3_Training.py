@@ -7,6 +7,9 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from torch import nn, optim
 from tqdm.notebook import tqdm
+import glob
+import json
+import os
 
 DEBUG = True
 
@@ -24,6 +27,8 @@ class Training():
         ################
         # do something #
         ################
+
+        img_paths, img_text_pairs = self.make_temp_dataset()
 
         train_img_paths, test_img_paths = train_test_split(img_paths, test_size=0.2, random_state=42)
         d_train = {k: img_text_pairs[k] for k in train_img_paths}
@@ -119,6 +124,24 @@ class Training():
         for p in model.parameters():
             p.data = p.data.float()
             p.grad.data = p.grad.data.float()
+
+    def make_temp_dataset(self):
+        IMG_ROOT = "C:/GitHub_clone/LIAM/custom_data/images/pyh/"
+        JSON_ROOT = "C:/GitHub_clone/LIAM/custom_data/images/pyh_json/"
+        img_paths = glob.glob(os.path.join(IMG_ROOT, "*.jpg"))
+
+        d = {}
+        for i, img_path in enumerate(img_paths):
+            name = img_path.replace('\\', '/').split("/")[-1].split(".")[0]
+            with open(os.path.join(JSON_ROOT, name+".json"), "r") as f:
+                captions = json.load(f)
+                temp = []
+                for cap in captions:
+                    if "http" not in (cap[0]+ ' '+cap[1]) and len(cap[0]+ ' '+cap[1]) >= 8 and len(cap[0]+ ' '+cap[1]) <= 70:
+                        temp.append(cap[0]+ ' '+cap[1])
+                d[img_path] = temp
+        return img_paths, d
+
 
 class MemeDataset(Dataset):
     def __init__(self, data, preprocess):
