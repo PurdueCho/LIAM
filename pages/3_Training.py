@@ -1,21 +1,24 @@
-import streamlit as st
-from PIL import Image
-import torch
-import clip
-from torch.utils.data import Dataset, DataLoader, BatchSampler
-from sklearn.model_selection import train_test_split
-import numpy as np
-from torch import nn, optim
-from tqdm.notebook import tqdm
 import glob
 import json
 import os
+
+import clip
+import numpy as np
+import streamlit as st
+import torch
+from PIL import Image
+from sklearn.model_selection import train_test_split
+from torch import nn, optim
+from torch.utils.data import Dataset, DataLoader, BatchSampler
+from tqdm.notebook import tqdm
 
 DEBUG = True
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 2
 EPOCH = 2
+
+
 class Training():
     def __init__(self):
         self.model, self.preprocess = clip.load("ViT-B/32", device=device, jit=False)
@@ -57,11 +60,12 @@ class Training():
         loss_txt = nn.CrossEntropyLoss()
         # optimizer = optim.Adam(model.parameters(), lr=5e-5,betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
         optimizer = optim.Adam(self.model.parameters(), lr=1e-5)
-        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, len(train_dataloader)*EPOCH)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, len(train_dataloader) * EPOCH)
 
         best_te_loss = 1e5
         best_ep = -1
         for epoch in range(EPOCH):
+            st.spinner('Please wait while training...')
             print(f"running epoch {epoch}, best test loss {best_te_loss} after epoch {best_ep}")
             step = 0
             tr_loss = 0
@@ -74,11 +78,11 @@ class Training():
                 images, texts, _ = batch
                 images = images.to(device)
                 texts = clip.tokenize(texts).to(device)
-        #         print(images.shape, texts.shape)
+                #         print(images.shape, texts.shape)
                 logits_per_image, logits_per_text = self.model(images, texts)
                 ground_truth = torch.arange(BATCH_SIZE).to(device)
 
-                total_loss = (loss_img(logits_per_image,ground_truth) + loss_txt(logits_per_text,ground_truth))/2
+                total_loss = (loss_img(logits_per_image, ground_truth) + loss_txt(logits_per_text, ground_truth)) / 2
                 total_loss.backward()
                 tr_loss += total_loss.item()
                 if device == "cpu":
@@ -106,7 +110,8 @@ class Training():
                     logits_per_image, logits_per_text = self.model(images, texts)
                     ground_truth = torch.arange(BATCH_SIZE).to(device)
 
-                    total_loss = (loss_img(logits_per_image,ground_truth) + loss_txt(logits_per_text,ground_truth))/2
+                    total_loss = (loss_img(logits_per_image, ground_truth) + loss_txt(logits_per_text,
+                                                                                      ground_truth)) / 2
                     te_loss += total_loss.item()
                     test_pbar.set_description(f"test batchCE: {total_loss.item()}", refresh=True)
                 te_loss /= step
@@ -118,7 +123,7 @@ class Training():
             print(f"epoch {epoch}, tr_loss {tr_loss}, te_loss {te_loss}")
         torch.save(self.model.state_dict(), "./train_sample/last_model_test.pt")
 
-        print('Done.')
+        st.sucess('Done.')
 
     def convert_models_to_fp32(model):
         for p in model.parameters():
@@ -133,12 +138,13 @@ class Training():
         d = {}
         for i, img_path in enumerate(img_paths):
             name = img_path.replace('\\', '/').split("/")[-1].split(".")[0]
-            with open(os.path.join(JSON_ROOT, name+".json"), "r") as f:
+            with open(os.path.join(JSON_ROOT, name + ".json"), "r") as f:
                 captions = json.load(f)
                 temp = []
                 for cap in captions:
-                    if "http" not in (cap[0]+ ' '+cap[1]) and len(cap[0]+ ' '+cap[1]) >= 8 and len(cap[0]+ ' '+cap[1]) <= 70:
-                        temp.append(cap[0]+ ' '+cap[1])
+                    if "http" not in (cap[0] + ' ' + cap[1]) and len(cap[0] + ' ' + cap[1]) >= 8 and len(
+                            cap[0] + ' ' + cap[1]) <= 70:
+                        temp.append(cap[0] + ' ' + cap[1])
                 d[img_path] = temp
         return img_paths, d
 
@@ -167,6 +173,7 @@ class MemeDataset(Dataset):
         caption = self.captions[idx]
         label = self.path2label[img_path]
         return image, caption, label
+
 
 class BalancedBatchSampler(BatchSampler):
     """
@@ -207,6 +214,7 @@ class BalancedBatchSampler(BatchSampler):
     def __len__(self):
         return self.n_dataset // self.batch_size
 
+
 def main() -> None:
     st.title("학습을 위한 이미지 파일을 업로드 해주세요.")
     selfTraining = Training()
@@ -229,12 +237,11 @@ def main() -> None:
             st.image(uploaded_file, caption=uploaded_file.name, width=150)
             text_pair = st.text_input(label, '')
             text_pairs.append(text_pair)
-            full_path = img_root+uploaded_file.name
+            full_path = img_root + uploaded_file.name
             img_paths.append(full_path)
             img_text_pairs[full_path] = text_pair
 
         # Call Train API
-
 
         if "runbtn_state" not in st.session_state:
             st.session_state.runbtn_state = False
@@ -245,8 +252,7 @@ def main() -> None:
             if DEBUG:
                 st.write(uploaded_files)
 
-
-            selfTraining.my_func(uploaded_files, img_paths ,img_text_pairs) # Your function
+            selfTraining.my_func(uploaded_files, img_paths, img_text_pairs)  # Your function
 
 
 if __name__ == "__main__":
