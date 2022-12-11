@@ -151,7 +151,7 @@ def main() -> None:
         st.video(uploaded_file)
 
         # Search Input
-        query = st.text_input('찾고 싶은 장면을 검색 하세요.', 'Ex) 웃고있는 이광수...')
+        query = st.text_input('찾고 싶은 장면을 검색 하세요.', '')
 
         if DEBUG:
             st.write('검색 Query: ', query)
