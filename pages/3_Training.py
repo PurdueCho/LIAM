@@ -216,6 +216,7 @@ class BalancedBatchSampler(BatchSampler):
 
 
 def main() -> None:
+    st.image('./imgs/logo.png', width=300)
     st.title("학습을 위한 이미지 파일을 업로드 해주세요.")
     selfTraining = Training()
     runbtn = st.button('Train')

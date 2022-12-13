@@ -129,6 +129,7 @@ class VidelSearch():
 
 
 def main() -> None:
+    st.image('./imgs/logo.png', width=300)
     st.title("자신의 영상속 장면을 검색하세요.")
 
     # Load Video

@@ -192,6 +192,7 @@ class YoutubeSearch():
 
 def main() -> None:
     # download_model()
+    st.image('./imgs/logo.png', width=300)
     st.title("원하시는 유튜브 영상속 장면을 검색하세요.")
 
     # Get youtube
