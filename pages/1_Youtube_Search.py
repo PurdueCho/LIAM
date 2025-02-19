@@ -2,7 +2,7 @@ import cv2
 import streamlit as st
 from PIL import Image
 
-DEBUG = True
+DEBUG = False
 
 import plotly.express as px
 import datetime
@@ -81,8 +81,11 @@ class YoutubeSearch():
             st.session_state.run_btn_state = False
 
         if run_btn or st.session_state.run_btn_state:
-            st.session_state.run_btn_state = True
-            self.my_func(url, query)  # Your function
+            if(len(query) == 0):
+                pass
+            else:
+                st.session_state.run_btn_state = True
+                self.my_func(url, query)  # Your function
 
     def getResultsFromQuery(self, query):
         result = Search(query)

@@ -10,7 +10,7 @@ import torch
 from PIL import Image
 from googletrans import Translator
 
-DEBUG = True
+DEBUG = False
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 translator = Translator()
@@ -164,9 +164,12 @@ def main() -> None:
             st.session_state.run_btn_state = False
 
         if run_btn or st.session_state.run_btn_state:
-            st.session_state.run_btn_state = True
-            videoSearch = VidelSearch()
-            videoSearch.my_func(uploaded_file, query)  # Your function
+            if(len(query) == 0):
+                pass
+            else:
+                st.session_state.run_btn_state = True
+                videoSearch = VidelSearch()
+                videoSearch.my_func(uploaded_file, query)  # Your function
 
 
 if __name__ == "__main__":
